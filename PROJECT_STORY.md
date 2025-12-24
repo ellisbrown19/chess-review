@@ -107,7 +107,7 @@ This demonstrated the value of systematic code review - issues we would have dis
 - [x] Phase 1: Project Setup & Documentation
 - [x] Phase 2: Backend - Lichess Integration
 - [x] Phase 3: Backend - Analysis Engine (Move Classification & Opening Detection)
-- [ ] Phase 4: Opening Database (Populate from eco.json)
+- [x] Phase 4: Opening Database (Enhanced with fun facts, famous games, Wikipedia links)
 - [ ] Phase 5: AI Commentary Generation
 - [ ] Phase 6: Frontend - Game Selection UI
 - [ ] Phase 7: Frontend - Analysis UI
@@ -135,10 +135,11 @@ This demonstrated the value of systematic code review - issues we would have dis
 - ✅ Complete project setup with React 18 + Vite + Tailwind + Jest
 - ✅ Three Lichess API serverless functions with timeout handling and caching
 - ✅ Move classification system (chess.com-compatible) with 8 passing tests
-- ✅ Opening detection with longest-match algorithm and 6 passing tests
-- ✅ Code review identified and fixed 13 issues before they became problems
+- ✅ Opening detection with longest-match algorithm and 12 passing tests
+- ✅ Enhanced opening database with fun facts, famous games, and Wikipedia links
+- ✅ Code reviews identified and fixed issues before they became problems (Phase 2: 13 issues, Phase 4: APPROVED)
 - ✅ GitHub repository connected (git@github.com:ellisbrown19/lichess-game-review.git)
-- ✅ 14/14 tests passing - TDD workflow fully established
+- ✅ 20/20 tests passing - TDD workflow fully established (8 classifier + 12 openings)
 - ✅ Comprehensive documentation (claude.md, PROJECT_STORY.md, README.md, api-research.md)
 
 ## Future Vision
@@ -160,4 +161,4 @@ Ideas for later iterations (not in initial scope):
 
 *This is a living document. As the project evolves, so does this story.*
 
-*Last updated: December 24, 2025 - Initial setup complete*
+*Last updated: December 24, 2025 - Backend complete (Phases 1-4), moving to Phase 5: AI Commentary*
