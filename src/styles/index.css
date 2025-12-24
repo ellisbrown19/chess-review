@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+}
+
+@layer components {
+  /* Move classification badges */
+  .badge-brilliant {
+    @apply bg-brilliant text-white;
+  }
+
+  .badge-great {
+    @apply bg-great text-white;
+  }
+
+  .badge-best {
+    @apply bg-best text-white;
+  }
+
+  .badge-good {
+    @apply bg-good text-white;
+  }
+
+  .badge-inaccuracy {
+    @apply bg-inaccuracy text-gray-900;
+  }
+
+  .badge-mistake {
+    @apply bg-mistake text-white;
+  }
+
+  .badge-blunder {
+    @apply bg-blunder text-white;
+  }
+}
