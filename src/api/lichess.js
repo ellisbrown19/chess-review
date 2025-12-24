@@ -135,3 +135,58 @@ export function isLikelyUsername(input) {
 
   return false;
 }
+
+/**
+ * Analyze a game using backend classification and opening detection
+ * @param {string} pgn - Game PGN
+ * @param {Object[]} evaluations - Array of position evaluations from Cloud Eval
+ * @returns {Promise<Object>} - { moves, opening, stats, totalMoves }
+ */
+export async function analyzeGame(pgn, evaluations) {
+  try {
+    const response = await fetch(`${API_BASE}/api/analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ pgn, evaluations }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to analyze game');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error analyzing game:', error);
+    throw error;
+  }
+}
+
+/**
+ * Generate AI commentary for a move
+ * @param {Object} moveData - Move data for commentary generation
+ * @returns {Promise<Object>} - { commentary, cached, error }
+ */
+export async function generateCommentary(moveData) {
+  try {
+    const response = await fetch(`${API_BASE}/api/commentary`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ moveData }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to generate commentary');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error generating commentary:', error);
+    throw error;
+  }
+}

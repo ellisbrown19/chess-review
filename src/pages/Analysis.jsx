@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Chess } from 'chess.js'
-import { fetchGame, evaluatePositions } from '../api/lichess'
+import { fetchGame, evaluatePositions, analyzeGame, generateCommentary } from '../api/lichess'
 import Board from '../components/Board'
 import Controls from '../components/Controls'
 import MoveList from '../components/MoveList'
@@ -65,16 +65,8 @@ function Analysis() {
       setMoves(parsedMoves)
       setPositions(positionsList)
 
-      // Fetch evaluations for all positions
-      await evaluatePositionsAndClassify(positionsList, parsedMoves)
-
-      // Detect opening (placeholder - will use backend)
-      if (gameData.opening) {
-        setOpening({
-          name: gameData.opening.name,
-          eco: gameData.opening.eco,
-        })
-      }
+      // Fetch evaluations for all positions and analyze with backend
+      await evaluateAndAnalyze(gameData.pgn, positionsList)
 
     } catch (err) {
       setError(err.message)
@@ -83,68 +75,58 @@ function Analysis() {
     }
   }
 
-  const evaluatePositionsAndClassify = async (positionsList, parsedMoves) => {
+  const evaluateAndAnalyze = async (pgn, positionsList) => {
     try {
       // Get evaluations from Lichess Cloud Eval
       const { evaluations } = await evaluatePositions(positionsList)
 
-      // Classify moves based on evaluations
-      const classifiedMoves = parsedMoves.map((move, index) => {
-        const evalBefore = evaluations[index]
-        const evalAfter = evaluations[index + 1]
+      // Use backend to analyze game with proper classification and opening detection
+      const analysis = await analyzeGame(pgn, evaluations)
 
-        if (!evalBefore || !evalAfter) {
-          return { ...move }
-        }
-
-        // Simple classification based on centipawn loss
-        const cpBefore = evalBefore.cp !== undefined ? evalBefore.cp : 0
-        const cpAfter = evalAfter.cp !== undefined ? evalAfter.cp : 0
-        const cpLoss = Math.abs(cpBefore - cpAfter)
-
-        let classification = 'best'
-        if (cpLoss < 50) classification = 'good'
-        else if (cpLoss < 100) classification = 'inaccuracy'
-        else if (cpLoss < 200) classification = 'mistake'
-        else classification = 'blunder'
-
-        return {
-          ...move,
-          classification,
-          cpLoss,
-          evaluation: evalAfter.cp,
-        }
-      })
-
-      setMoves(classifiedMoves)
-
-      // Calculate move statistics
-      const stats = {
-        brilliant: 0,
-        great: 0,
-        best: 0,
-        good: 0,
-        inaccuracy: 0,
-        mistake: 0,
-        blunder: 0,
-      }
-
-      classifiedMoves.forEach(move => {
-        if (move.classification) {
-          stats[move.classification] = (stats[move.classification] || 0) + 1
-        }
-      })
-
-      setMoveStats(stats)
+      // Update state with analysis results
+      setMoves(analysis.moves)
+      setOpening(analysis.opening)
+      setMoveStats(analysis.stats)
 
     } catch (err) {
-      console.error('Error evaluating positions:', err)
+      console.error('Error analyzing game:', err)
+      // Fall back to simple display without classification
     }
   }
 
   const handleGenerateCommentary = async (move) => {
-    // TODO: Call commentary API
-    console.log('Generate commentary for move:', move)
+    try {
+      // Prepare move data for commentary generation
+      const moveIndex = currentMoveIndex - 1
+      const fen = positions[moveIndex] || positions[0]
+
+      const moveData = {
+        fen,
+        move: move.san,
+        classification: move.classification,
+        cpLoss: move.cpLoss || 0,
+        moveNumber: move.moveNumber,
+        player: move.color === 'w' ? 'white' : 'black',
+        bestMove: move.bestMove,
+        isSacrifice: false, // TODO: Detect sacrifices
+      }
+
+      // Generate commentary
+      const result = await generateCommentary(moveData)
+
+      // Update the move with commentary
+      const updatedMoves = [...moves]
+      updatedMoves[moveIndex] = {
+        ...updatedMoves[moveIndex],
+        commentary: result.commentary,
+        commentaryCached: result.cached,
+      }
+      setMoves(updatedMoves)
+
+    } catch (err) {
+      console.error('Error generating commentary:', err)
+      // TODO: Show error to user
+    }
   }
 
   const handleMoveClick = (index) => {
