@@ -65,11 +65,29 @@ Established complete directory structure for:
 
 ### Technical Challenges Encountered
 
-*To be filled as we build...*
+**Phase 2 - Code Review Catches Critical Issues**: After implementing the Lichess API integration, the superpowers code-review subagent identified 6 critical issues and 7 important improvements. Key fixes:
+- Cache statistics bug (cached results weren't being tracked)
+- Rate limiting inefficiency (delaying even on cached results)
+- Missing input validation and timeout handling
+- NDJSON parsing vulnerability
+
+This demonstrated the value of systematic code review - issues we would have discovered in production were caught during development.
+
+**Phase 3 - TDD Discipline Pays Off**: Following strict Test-Driven Development (write test first, watch it fail, write minimal code) prevented several bugs:
+- Caught the `eval` reserved word issue immediately in tests
+- Ensured all edge cases (mate scores, empty move lists) were handled
+- 14/14 tests passing gives confidence the logic is correct
 
 ### Interesting Discoveries
 
-*To be filled as we build...*
+**Serverless Cache Limitations**: In-memory caching in Vercel serverless functions is per-function-instance, not shared across all requests. This means cache hit rates will be lower than initially expected. For production at scale, we'd need Vercel KV (Redis) for persistent caching. For MVP, documented the limitation and moved on.
+
+**Chess.com Move Classification**: Researched the exact thresholds chess.com uses:
+- Brilliant moves require both being the best move AND a material sacrifice or huge eval swing
+- Great moves are best moves with 300+ centipawn swings
+- The system is more nuanced than just centipawn loss
+
+**eco.json GitHub Repository**: Found a perfect opening database with ~12,000 openings in JSON format, sourced from Lichess data (June 2025). This eliminates the need to parse PGN databases ourselves.
 
 ### Lessons Learned
 
@@ -77,15 +95,19 @@ Established complete directory structure for:
 
 **Documentation Matters**: Taking time to create good documentation (this file, claude.md) sets up success for future sessions and makes this portfolio-worthy from day one.
 
+**Superpowers Workflow Excellence**: Using the superpowers plugin's structured skills (brainstorming, TDD, code review, git worktrees) dramatically improved code quality and development speed. The discipline these skills enforce prevents cutting corners.
+
+**Test-First Development Really Works**: Initially skeptical about strict TDD, but watching tests fail first, then pass, gave genuine confidence the code works. The 14/14 passing tests aren't just coverage - they're proof of correctness.
+
 ## Metrics & Progress
 
 ### Implementation Phases
 
 - [x] Phase 0: Planning & Design
-- [x] Phase 1: Project Setup & Documentation (In Progress)
-- [ ] Phase 2: Backend - Lichess Integration
-- [ ] Phase 3: Backend - Analysis Engine
-- [ ] Phase 4: Opening Database
+- [x] Phase 1: Project Setup & Documentation
+- [x] Phase 2: Backend - Lichess Integration
+- [x] Phase 3: Backend - Analysis Engine (Move Classification & Opening Detection)
+- [ ] Phase 4: Opening Database (Populate from eco.json)
 - [ ] Phase 5: AI Commentary Generation
 - [ ] Phase 6: Frontend - Game Selection UI
 - [ ] Phase 7: Frontend - Analysis UI
@@ -109,7 +131,15 @@ Established complete directory structure for:
 
 ### Key Achievements
 
-*To be filled as we hit milestones...*
+**December 24, 2025**:
+- ✅ Complete project setup with React 18 + Vite + Tailwind + Jest
+- ✅ Three Lichess API serverless functions with timeout handling and caching
+- ✅ Move classification system (chess.com-compatible) with 8 passing tests
+- ✅ Opening detection with longest-match algorithm and 6 passing tests
+- ✅ Code review identified and fixed 13 issues before they became problems
+- ✅ GitHub repository connected (git@github.com:ellisbrown19/lichess-game-review.git)
+- ✅ 14/14 tests passing - TDD workflow fully established
+- ✅ Comprehensive documentation (claude.md, PROJECT_STORY.md, README.md, api-research.md)
 
 ## Future Vision
 
