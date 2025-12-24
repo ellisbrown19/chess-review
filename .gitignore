@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Git worktrees
+.worktrees/
+worktrees/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cache
+.cache/
