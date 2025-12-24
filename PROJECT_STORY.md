@@ -108,7 +108,7 @@ This demonstrated the value of systematic code review - issues we would have dis
 - [x] Phase 2: Backend - Lichess Integration
 - [x] Phase 3: Backend - Analysis Engine (Move Classification & Opening Detection)
 - [x] Phase 4: Opening Database (Enhanced with fun facts, famous games, Wikipedia links)
-- [ ] Phase 5: AI Commentary Generation
+- [x] Phase 5: AI Commentary Generation (Claude Haiku integration with caching)
 - [ ] Phase 6: Frontend - Game Selection UI
 - [ ] Phase 7: Frontend - Analysis UI
 - [ ] Phase 8: State Management
@@ -137,9 +137,11 @@ This demonstrated the value of systematic code review - issues we would have dis
 - ✅ Move classification system (chess.com-compatible) with 8 passing tests
 - ✅ Opening detection with longest-match algorithm and 12 passing tests
 - ✅ Enhanced opening database with fun facts, famous games, and Wikipedia links
-- ✅ Code reviews identified and fixed issues before they became problems (Phase 2: 13 issues, Phase 4: APPROVED)
+- ✅ AI Commentary Generation with Claude Haiku integration and caching
+- ✅ Cost-optimized prompts (<500 chars, ~$0.001 per game with caching)
+- ✅ Code reviews identified and fixed issues (Phase 2: 13 issues, Phase 4 & 5: APPROVED)
 - ✅ GitHub repository connected (git@github.com:ellisbrown19/lichess-game-review.git)
-- ✅ 20/20 tests passing - TDD workflow fully established (8 classifier + 12 openings)
+- ✅ 35/35 tests passing - TDD workflow fully established (8 classifier + 12 openings + 15 AI)
 - ✅ Comprehensive documentation (claude.md, PROJECT_STORY.md, README.md, api-research.md)
 
 ## Future Vision
@@ -161,4 +163,4 @@ Ideas for later iterations (not in initial scope):
 
 *This is a living document. As the project evolves, so does this story.*
 
-*Last updated: December 24, 2025 - Backend complete (Phases 1-4), moving to Phase 5: AI Commentary*
+*Last updated: December 24, 2025 - Backend complete (Phases 1-5), ready for frontend development*
