@@ -31,7 +31,7 @@ A comprehensive chess game analysis web application that rivals chess.com's paid
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/lichess-game-review.git
+git clone https://github.com/ellisbrown19/lichess-game-review.git
 cd lichess-game-review
 ```
 
@@ -47,7 +47,7 @@ cp .env.example .env
 
 Edit `.env` and add your Anthropic API key:
 ```
-VITE_ANTHROPIC_API_KEY=your_api_key_here
+ANTHROPIC_API_KEY=your_api_key_here
 ```
 
 4. Start the development server:
@@ -99,19 +99,45 @@ lichess-game-review/
 
 ### Vercel (Recommended)
 
-1. Install Vercel CLI:
-```bash
-npm i -g vercel
-```
+1. **Connect Repository**:
+   - Push your code to GitHub
+   - Visit [Vercel Dashboard](https://vercel.com/dashboard)
+   - Click "Add New..." → "Project"
+   - Import your GitHub repository
 
-2. Deploy:
-```bash
-vercel --prod
-```
+2. **Configure Environment Variables**:
+   In the Vercel project settings, add:
+   - `ANTHROPIC_API_KEY` - Your Anthropic API key (required)
+   - `VITE_LICHESS_API_TOKEN` - Optional, for higher rate limits
 
-3. Set environment variables in Vercel dashboard
+3. **Deploy**:
+   - Vercel auto-deploys from your main branch
+   - Or use CLI: `vercel --prod`
+
+4. **Verify Deployment**:
+   - Test the live URL
+   - Check serverless functions work
+   - Verify AI commentary generation
 
 The app will be live on Vercel's free tier with 100GB bandwidth/month.
+
+### Manual Deployment (CLI)
+
+If you prefer using the CLI:
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy to production
+vercel --prod
+
+# Set environment variables
+vercel env add ANTHROPIC_API_KEY
+```
 
 ## Cost Breakdown
 
