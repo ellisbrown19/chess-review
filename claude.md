@@ -1,5 +1,40 @@
 # Lichess Game Review - Claude Development Guide
 
+---
+
+# ⚡ **ALWAYS USE SUPERPOWERS SKILLS** ⚡
+
+## 🎯 CRITICAL: Use Superpowers for EVERYTHING
+
+**THIS PROJECT USES THE SUPERPOWERS PLUGIN FOR ALL DEVELOPMENT WORKFLOWS**
+
+### When Starting ANY Task:
+1. ✅ **FIRST** - Check if a superpowers skill applies (brainstorming, TDD, debugging, code review, etc.)
+2. ✅ **THEN** - Invoke the skill using the `Skill` tool
+3. ✅ **FOLLOW** - The skill's workflow exactly as prescribed
+
+### Required Skills for This Project:
+
+- **`superpowers:brainstorming`** - BEFORE any creative work or new features
+- **`superpowers:test-driven-development`** - BEFORE implementing any feature or bugfix
+- **`superpowers:systematic-debugging`** - WHEN encountering bugs or test failures
+- **`superpowers:requesting-code-review`** - AFTER completing major features or phases
+- **`superpowers:verification-before-completion`** - BEFORE claiming work is complete
+- **`superpowers:finishing-a-development-branch`** - WHEN implementation is complete
+- **`superpowers:using-git-worktrees`** - For isolated development (already done)
+- **`superpowers:writing-plans`** - For detailed implementation planning
+- **`superpowers:executing-plans`** - For executing written plans with review checkpoints
+
+### 🚨 IF YOU THINK A SKILL MIGHT APPLY (EVEN 1% CHANCE):
+
+**YOU MUST USE IT. THIS IS NOT OPTIONAL.**
+
+No rationalizing. No shortcuts. No "this is too simple for a skill."
+
+Skills prevent bugs, ensure quality, and maintain project standards.
+
+---
+
 ## Project Overview
 
 A comprehensive chess game analysis web application that provides rich, instructive commentary on chess games from Lichess. The goal is to rival and exceed chess.com's paid game review feature using free APIs and cost-effective AI.
@@ -201,14 +236,20 @@ Based on centipawn loss from best move:
 - Uploaded PGN support
 - Multi-language support
 
-## Superpowers Skills to Use
+## Superpowers Skills Usage
 
-Throughout this project:
-- `superpowers:using-git-worktrees` - Already used for isolation
-- `superpowers:verification-before-completion` - Before marking phases complete
-- `superpowers:requesting-code-review` - Before major milestones
-- `superpowers:finishing-a-development-branch` - When ready to merge
-- **Future**: Consider creating a "journalist" skill for Paul Graham-style PROJECT_STORY.md updates
+**SEE THE TOP OF THIS FILE FOR COMPLETE SUPERPOWERS REQUIREMENTS**
+
+Throughout this project, superpowers skills are MANDATORY:
+- ✅ `superpowers:using-git-worktrees` - Already used for isolation
+- ✅ `superpowers:brainstorming` - Used for initial design
+- ✅ `superpowers:requesting-code-review` - Used after Phase 2
+- 🔄 `superpowers:test-driven-development` - Use for ALL feature implementation
+- 🔄 `superpowers:verification-before-completion` - Use BEFORE marking phases complete
+- 🔄 `superpowers:systematic-debugging` - Use for ANY bugs or failures
+- 🔄 `superpowers:finishing-a-development-branch` - Use when ready to merge
+
+**Future**: Consider creating a "journalist" skill for Paul Graham-style PROJECT_STORY.md updates
 
 ## Development Phases
 
