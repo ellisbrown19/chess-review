@@ -9,20 +9,12 @@
  */
 
 // Simple in-memory cache for Cloud Eval results
-// In production, consider Redis or similar for persistent cache
+// NOTE: In serverless environments, this cache is per-function-instance,
+// not shared across all requests. For production with high traffic,
+// consider using Vercel KV (Redis) for persistent, shared caching.
 const evalCache = new Map();
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
-const RATE_LIMIT_DELAY = 100; // ms between requests
-
-// Clean old cache entries periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, value] of evalCache.entries()) {
-    if (now - value.timestamp > CACHE_TTL) {
-      evalCache.delete(key);
-    }
-  }
-}, 1000 * 60 * 60); // Clean every hour
+const RATE_LIMIT_DELAY = 100; // ms between API requests (not cached)
 
 // Helper: delay between requests for rate limiting
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -33,19 +25,31 @@ async function fetchEvaluation(fen, multiPv = 3, retries = 3) {
   const cacheKey = `${fen}:${multiPv}`;
   const cached = evalCache.get(cacheKey);
   if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
-    return cached.data;
+    // Clean up old cache entries opportunistically
+    const now = Date.now();
+    for (const [key, value] of evalCache.entries()) {
+      if (now - value.timestamp > CACHE_TTL) {
+        evalCache.delete(key);
+      }
+    }
+    return { ...cached.data, cached: true };
   }
 
-  // Fetch from Lichess Cloud Eval
+  // Fetch from Lichess Cloud Eval with timeout
   const url = `https://lichess.org/api/cloud-eval?fen=${encodeURIComponent(fen)}&multiPv=${multiPv}`;
 
   for (let attempt = 0; attempt < retries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     try {
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/json',
         },
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       if (response.status === 429) {
         // Rate limited - wait and retry with exponential backoff
@@ -77,6 +81,18 @@ async function fetchEvaluation(fen, multiPv = 3, retries = 3) {
       return data;
 
     } catch (error) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        if (attempt === retries - 1) {
+          return {
+            fen,
+            available: false,
+            error: 'Request timeout - Lichess API did not respond'
+          };
+        }
+        await delay(Math.pow(2, attempt) * 1000);
+        continue;
+      }
       if (attempt === retries - 1) {
         throw error;
       }
@@ -128,6 +144,11 @@ export default async function handler(req, res) {
           index: i,
           ...evaluation,
         });
+
+        // Only delay after actual API calls, not cached results
+        if (i < fens.length - 1 && !evaluation.cached) {
+          await delay(RATE_LIMIT_DELAY);
+        }
       } catch (error) {
         console.error(`Error evaluating position ${i}:`, error);
         evaluations.push({
@@ -136,11 +157,6 @@ export default async function handler(req, res) {
           available: false,
           error: error.message,
         });
-      }
-
-      // Rate limiting delay between requests (except for last one)
-      if (i < fens.length - 1) {
-        await delay(RATE_LIMIT_DELAY);
       }
     }
 

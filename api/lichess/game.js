@@ -26,15 +26,25 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Game ID parameter is required' });
   }
 
+  // Validate game ID format (8-12 alphanumeric characters)
+  if (!/^[a-zA-Z0-9]{8,12}$/.test(id)) {
+    return res.status(400).json({ error: 'Invalid game ID format' });
+  }
+
   try {
-    // Fetch game from Lichess API with PGN in JSON format
+    // Fetch game from Lichess API with PGN in JSON format and timeout
     const url = `https://lichess.org/game/export/${id}?pgnInJson=true&clocks=true&evals=true&opening=true`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
       },
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -83,10 +93,15 @@ export default async function handler(req, res) {
     return res.status(200).json(gameData);
 
   } catch (error) {
+    if (error.name === 'AbortError') {
+      return res.status(504).json({
+        error: 'Request timeout - Lichess API did not respond in time'
+      });
+    }
     console.error('Error fetching game:', error);
     return res.status(500).json({
       error: 'Failed to fetch game from Lichess',
-      details: error.message
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }

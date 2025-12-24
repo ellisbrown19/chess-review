@@ -20,21 +20,29 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { username, max = 10 } = req.query;
+  const { username } = req.query;
 
   if (!username) {
     return res.status(400).json({ error: 'Username parameter is required' });
   }
 
+  // Validate and sanitize max parameter
+  const maxGames = Math.min(Math.max(parseInt(req.query.max) || 10, 1), 100);
+
   try {
-    // Fetch games from Lichess API
-    const url = `https://lichess.org/api/games/user/${username}?max=${max}&pgnInJson=true&clocks=false&evals=false&opening=true`;
+    // Fetch games from Lichess API with timeout
+    const url = `https://lichess.org/api/games/user/${encodeURIComponent(username)}?max=${maxGames}&pgnInJson=true&clocks=false&evals=false&opening=true`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/x-ndjson', // Lichess returns NDJSON
       },
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -43,13 +51,21 @@ export default async function handler(req, res) {
       throw new Error(`Lichess API error: ${response.status}`);
     }
 
-    // Parse NDJSON (newline-delimited JSON)
+    // Parse NDJSON (newline-delimited JSON) with error handling
     const text = await response.text();
     const games = text
       .trim()
       .split('\n')
       .filter(line => line.trim())
-      .map(line => JSON.parse(line));
+      .map(line => {
+        try {
+          return JSON.parse(line);
+        } catch (error) {
+          console.error('Failed to parse NDJSON line:', line.substring(0, 100), error);
+          return null;
+        }
+      })
+      .filter(game => game !== null);
 
     // Simplify game data for frontend
     const simplifiedGames = games.map(game => ({
@@ -89,10 +105,15 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
+    if (error.name === 'AbortError') {
+      return res.status(504).json({
+        error: 'Request timeout - Lichess API did not respond in time'
+      });
+    }
     console.error('Error fetching games:', error);
     return res.status(500).json({
       error: 'Failed to fetch games from Lichess',
-      details: error.message
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }
