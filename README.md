@@ -31,8 +31,8 @@ A comprehensive chess game analysis web application that rivals chess.com's paid
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/ellisbrown19/lichess-game-review.git
-cd lichess-game-review
+git clone https://github.com/ellisbrown19/chess-review.git
+cd chess-review
 ```
 
 2. Install dependencies:
