@@ -5,7 +5,9 @@
  * that proxy Lichess API requests
  */
 
-const API_BASE = import.meta.env.DEV ? 'http://localhost:3000' : '';
+const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env?.DEV)
+  ? 'http://localhost:3000'
+  : '';
 
 /**
  * Fetch recent games for a Lichess username
@@ -123,9 +125,20 @@ export function isLikelyUsername(input) {
     return false;
   }
 
-  // 8-12 alphanumeric = likely game ID
-  if (/^[a-zA-Z0-9]{8,12}$/.test(trimmed)) {
+  // Username-specific characters (underscore or hyphen) indicate username
+  if (/_|-/.test(trimmed)) {
+    return true;
+  }
+
+  // Exactly 8 characters = likely game ID
+  if (trimmed.length === 8) {
     return false;
+  }
+
+  // 9-12 chars without special chars = assume username for better UX
+  // Let API validate gracefully if wrong
+  if (/^[a-zA-Z0-9]{9,12}$/.test(trimmed)) {
+    return true;
   }
 
   // Usernames are typically 2-20 characters, alphanumeric with - and _
