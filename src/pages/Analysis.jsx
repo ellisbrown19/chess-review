@@ -33,36 +33,21 @@ function Analysis() {
       const gameData = await fetchGame(gameId)
       setGame(gameData)
 
-      // Parse PGN and generate positions
+      // Parse PGN using chess.js (same as backend for consistency)
       const chess = new Chess()
-      const parsedMoves = []
-      const positionsList = [chess.fen()]
+      chess.loadPgn(gameData.pgn)
+      const history = chess.history({ verbose: true })
 
-      // Parse moves from PGN
-      const pgnMoves = gameData.pgn.match(/\d+\.\s+(\S+)(?:\s+(\S+))?/g) || []
-      pgnMoves.forEach(moveText => {
-        const cleanMoves = moveText.replace(/\d+\.\s+/, '').split(/\s+/)
-        cleanMoves.forEach(san => {
-          if (san && san !== '1-0' && san !== '0-1' && san !== '1/2-1/2') {
-            try {
-              const move = chess.move(san)
-              if (move) {
-                parsedMoves.push({
-                  san: move.san,
-                  from: move.from,
-                  to: move.to,
-                  moveNumber: chess.moveNumber(),
-                })
-                positionsList.push(chess.fen())
-              }
-            } catch (e) {
-              console.error('Error parsing move:', san, e)
-            }
-          }
-        })
+      // Generate ALL positions from parsed moves
+      const positionsList = [new Chess().fen()] // Starting position
+      const chessReplay = new Chess()
+
+      history.forEach((move) => {
+        chessReplay.move(move.san)
+        positionsList.push(chessReplay.fen())
       })
 
-      setMoves(parsedMoves)
+      // Only set positions here - moves will be set by backend analysis with classifications
       setPositions(positionsList)
 
       // Fetch evaluations for all positions and analyze with backend
